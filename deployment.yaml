@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyapp-deployment
+spec:
+  replicas: 2  # Adjust based on your needs
+  selector:
+    matchLabels:
+      app: pyapp
+  template:
+    metadata:
+      labels:
+        app: pyapp
+    spec:
+      containers:
+        - name: pyapp
+          image: anilyadav53/pyapp:latest  # Your Docker Hub image
+          ports:
+            - containerPort: 5000
+          env:
+            - name: ENVIRONMENT
+              value: "production"

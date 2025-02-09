@@ -3,7 +3,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return "Hello, Mr. what a lovely day!  This is jenkins automated pipeline"
+    return "Hello, Mr. what a lovely day!  This is jenkins automated pipeline for our first project."
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000) 
