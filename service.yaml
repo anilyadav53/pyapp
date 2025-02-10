@@ -9,4 +9,5 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 9090
-  type: LoadBalancer  # Exposes the service externally
+  type: LoadBalancer  # Exposes the service externally   
+

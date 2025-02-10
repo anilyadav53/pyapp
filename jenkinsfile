@@ -27,8 +27,8 @@ pipeline {
         stage('Deploy to AKS') {
             steps {
                 script {
-                    sh 'kubectl apply -f deployment.yaml'
-                    sh 'kubectl apply -f service.yaml'
+                    sh 'kubectl apply -f /home/azureuser/deployment.yaml'
+                    sh 'kubectl apply -f /home/azureuser/service.yaml'
 
                     // Verify Deployment
                     sh 'kubectl get pods'
