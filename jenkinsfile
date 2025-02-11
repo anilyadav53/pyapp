@@ -24,17 +24,17 @@ pipeline {
             }
         }
 
-        stage('Deploy to AKS') {
-            steps {
-                script {
-                    sh 'kubectl apply -f /home/azureuser/deployment.yaml'
-                    sh 'kubectl apply -f /home/azureuser/service.yaml'
+      //  stage('Deploy to AKS') {
+      //      steps {
+       //         script {
+      //              sh 'kubectl apply -f /home/azureuser/deployment.yaml'
+       //             sh 'kubectl apply -f /home/azureuser/service.yaml'
 
                     // Verify Deployment
-                    sh 'kubectl get pods'
-                    sh 'kubectl get svc'
-                }
-            }
-        }
+      //              sh 'kubectl get pods'
+       //             sh 'kubectl get svc'
+     //           }
+     //       }
+    //    } 
     }
 }
