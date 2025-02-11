@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "anilyadav53/pyapp:latest"
+    }
+
     stages {
         stage('Clone Repository') {
             steps {
@@ -11,30 +15,39 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    def imageName = "anilyadav53/pyapp:latest"
-                    
-                    docker.build(imageName)
+                    // Build Docker Image
+                    docker.build(IMAGE_NAME)
 
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                    // Login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
+                        usernameVariable: 'DOCKER_HUB_USER', 
+                        passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                         sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USER --password-stdin"
                     }
 
-                    docker.image(imageName).push()
+                    // Push Image to Docker Hub
+                    docker.image(IMAGE_NAME).push()
                 }
             }
         }
 
-      //  stage('Deploy to AKS') {
-      //      steps {
-       //         script {
-      //              sh 'kubectl apply -f /home/azureuser/deployment.yaml'
-       //             sh 'kubectl apply -f /home/azureuser/service.yaml'
-
-                    // Verify Deployment
-      //              sh 'kubectl get pods'
-       //             sh 'kubectl get svc'
-     //           }
-     //       }
-    //    } 
+        stage('Run Container') {
+            steps {
+                script {
+                    // Stop & remove old container if running
+                    sh 'docker stop pyapp || true'
+                    sh 'docker rm pyapp || true'
+                    
+                    // Pull latest image
+                    sh 'docker pull anilyadav53/pyapp:latest'
+                    
+                    // Run new container on port 5000
+                    sh 'docker run -d --name pyapp -p 5000:5000 anilyadav53/pyapp:latest'
+                    
+                    // Verify running container
+                    sh 'docker ps'
+                }
+            }
+        }
     }
 }
