@@ -1,44 +1,36 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "anilyadav53/pyapp:latest"
+    }
+
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/anilyadav53/pyapp.git'
+                git 'https://github.com/anilyadav53/pyapp.git'
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
-                script {
-                    def imageName = "anilyadav53/pyapp:latest"
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
 
-                    // Build Docker image
-                    docker.build(imageName)
-
-                    // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USER --password-stdin"
-                    }
-
-                    // Push Docker image
-                    docker.image(imageName).push()
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_HUB_PASSWORD')]) {
+                    sh 'echo $DOCKER_HUB_PASSWORD | docker login -u anilyadav53 --password-stdin'
+                    sh 'docker push $DOCKER_IMAGE'
                 }
             }
         }
 
-        stage('Deploy Container') {
+        stage('Deploy to Minikube') {
             steps {
-                script {
-                    // Stop & remove the old container if running
-                    sh """
-                        docker stop pyapp || true
-                        docker rm pyapp || true
-                    """
-
-                    // Run the new container
-                    sh 'docker run -d --name pyapp -p 5000:5000 anilyadav53/pyapp:latest'
-                }
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl get pods'
             }
         }
     }
