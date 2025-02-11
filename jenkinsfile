@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_NAME = "anilyadav53/pyapp:latest"
-    }
-
     stages {
         stage('Clone Repository') {
             steps {
@@ -15,37 +11,33 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Build Docker Image
-                    docker.build(IMAGE_NAME)
+                    def imageName = "anilyadav53/pyapp:latest"
+
+                    // Build Docker image
+                    docker.build(imageName)
 
                     // Login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
-                        usernameVariable: 'DOCKER_HUB_USER', 
-                        passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_HUB_USER', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
                         sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USER --password-stdin"
                     }
 
-                    // Push Image to Docker Hub
-                    docker.image(IMAGE_NAME).push()
+                    // Push Docker image
+                    docker.image(imageName).push()
                 }
             }
         }
 
-        stage('Run Container') {
+        stage('Deploy Container') {
             steps {
                 script {
-                    // Stop & remove old container if running
-                    sh 'docker stop pyapp || true'
-                    sh 'docker rm pyapp || true'
-                    
-                    // Pull latest image
-                    sh 'docker pull anilyadav53/pyapp:latest'
-                    
-                    // Run new container on port 5000
+                    // Stop & remove the old container if running
+                    sh """
+                        docker stop pyapp || true
+                        docker rm pyapp || true
+                    """
+
+                    // Run the new container
                     sh 'docker run -d --name pyapp -p 5000:5000 anilyadav53/pyapp:latest'
-                    
-                    // Verify running container
-                    sh 'docker ps'
                 }
             }
         }
