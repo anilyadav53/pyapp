@@ -29,6 +29,6 @@ spec:
     - protocol: TCP
       port: 5000       # Change from 80 to 5000
       targetPort: 5000
-      nodePort: 30486  # Optional, choose a fixed NodePort
+      nodePort: 32340  # Optional, choose a fixed NodePort
   type: NodePort
 
