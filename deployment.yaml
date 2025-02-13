@@ -27,8 +27,7 @@ spec:
     app: pyapp
   ports:
     - protocol: TCP
-      port: 5000       # Change from 80 to 5000
-      targetPort: 5000
-      nodePort: 32340  # Optional, choose a fixed NodePort
-  type: NodePort
+      port: 5000  # External port
+      targetPort: 5000  # Internal port (your app's port)
+  type: NodePort  # Kubernetes will assign a random nodePort
 
